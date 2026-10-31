@@ -38,8 +38,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 using WsID = std::string;
 
 class Config;
@@ -53,7 +51,7 @@ class Config;
 class DBEntry {
   public:
     // read from DB file // FIXME: this implies a file
-    virtual void readFromFile(const WsID id, const string filesystem, const string filename) = 0;
+    virtual void readFromFile(const WsID id, const std::string filesystem, const std::string filename) = 0;
 
     // write entry to DB after update (read with readEntry)
     virtual void writeEntry(const bool calledasroot = false) = 0;
@@ -88,26 +86,27 @@ class DBEntry {
     virtual std::string expire(const std::string timestamp) = 0;
 
     // consume an extension (writes entry back)
-    virtual void useExtension(const long expiration, const string mail, const int reminder, const string comment) = 0;
+    virtual void useExtension(const long expiration, const std::string mail, const int reminder,
+                              const std::string comment) = 0;
 
     // getters
     virtual long getRemaining() const = 0;
-    virtual string getId() const = 0;
+    virtual std::string getId() const = 0;
     // owner of this workspace. Entries created by current tools store the username explicitly;
     // for legacy entries without that field, falls back to the dash heuristic (utils::getOwner).
-    virtual string getUsername() const = 0;
+    virtual std::string getUsername() const = 0;
     virtual int getExtension() const = 0;
     virtual long getCreation() const = 0;
-    virtual string getWSPath() const = 0;
-    virtual string getMailaddress() const = 0;
-    virtual string getComment() const = 0;
+    virtual std::string getWSPath() const = 0;
+    virtual std::string getMailaddress() const = 0;
+    virtual std::string getComment() const = 0;
     virtual long getExpiration() const = 0;
     virtual long getExpired() const = 0;
     virtual long getReleaseTime() const = 0;
-    virtual string getFilesystem() const = 0;
+    virtual std::string getFilesystem() const = 0;
     virtual long getReminder() const = 0;
-    virtual string getGroup() const = 0;
-    virtual void setGroup(const string& group) = 0;
+    virtual std::string getGroup() const = 0;
+    virtual void setGroup(const std::string& group) = 0;
 
     // get config of parent DB
     virtual const Config* getConfig() const = 0;
@@ -124,9 +123,10 @@ class DBEntry {
 class Database {
   public:
     // new DB entry, username is the exact owner (stored in the `user` field of the entry)
-    virtual void createEntry(const string id, const string username, const string workspace, const long creation,
-                             const long expiration, const long reminder, const int extensions, const bool groupflag,
-                             const string group, const string mailaddress, const string comment) = 0;
+    virtual void createEntry(const std::string id, const std::string username, const std::string workspace,
+                             const long creation, const long expiration, const long reminder, const int extensions,
+                             const bool groupflag, const std::string group, const std::string mailaddress,
+                             const std::string comment) = 0;
 
     // read specific entry
     virtual std::unique_ptr<DBEntry> readEntry(const WsID id, const bool deleted) = 0;
@@ -135,21 +135,22 @@ class Database {
     virtual void deleteEntry(const WsID, const bool deleted) = 0;
 
     // return a list of entries
-    virtual std::vector<WsID> matchPattern(const string pattern, const string user, const vector<string> groups,
-                                           const bool deleted, const bool groupworkspaces) = 0;
+    virtual std::vector<WsID> matchPattern(const std::string pattern, const std::string user,
+                                           const std::vector<std::string> groups, const bool deleted,
+                                           const bool groupworkspaces) = 0;
 
     // create workspace directory according to the rules of this Db and return the name
     // has to fix all permissions
-    virtual std::string createWorkspace(const string name, const string user_option, const bool groupflag,
-                                        const bool groupwritable, const string groupname) = 0;
+    virtual std::string createWorkspace(const std::string name, const std::string user_option, const bool groupflag,
+                                        const bool groupwritable, const std::string groupname) = 0;
 
     virtual ~Database() = default; // address-sanitizer needs this
 };
 
 // exception for signaling errors
-class DatabaseException : public exception {
+class DatabaseException : public std::exception {
   private:
-    string message;
+    std::string message;
 
   public:
     DatabaseException(const char* msg) : message(msg) {}
